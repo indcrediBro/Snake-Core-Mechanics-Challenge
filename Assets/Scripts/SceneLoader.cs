@@ -30,8 +30,6 @@ public class SceneLoader : Singleton<SceneLoader>
 
     private IEnumerator LoadSceneAsync(string sceneName)
     {
-        yield return StartCoroutine(SceneFader.Instance.FadeIn());
-
         // Show the loading screen UI (if set)
         if (loadingScreen != null)
         {
@@ -62,8 +60,6 @@ public class SceneLoader : Singleton<SceneLoader>
         {
             loadingScreen.SetActive(false);
         }
-
-        yield return StartCoroutine(SceneFader.Instance.FadeOut());
     }
 
 
