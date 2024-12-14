@@ -7,16 +7,22 @@ public class ScoreManager : Singleton<ScoreManager>
     private void OnEnable()
     {
         GameEvents.OnFoodEaten += IncreaseScore;
+        GameEvents.OnGameStart += ResetScore;
     }
 
     private void OnDisable()
     {
         GameEvents.OnFoodEaten -= IncreaseScore;
+        GameEvents.OnGameStart -= ResetScore;
     }
 
     private void IncreaseScore()
     {
         Score++;
-        Debug.Log("Score: " + Score);
+    }
+
+    private void ResetScore()
+    {
+        Score = 0;
     }
 }

@@ -14,16 +14,45 @@ public class SnakeController : MonoBehaviour
 
     private float moveTimer;
 
-    private void Start()
+    private void OnEnable()
     {
-        snakeSegments.Add(transform); // Add the head to the segment list
-        positionHistory.Add(transform.position); // Track the initial position
+        GameEvents.OnGameStart += ResetSnake;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnGameStart -= ResetSnake;
     }
 
     private void Update()
     {
         HandleMovement();
     }
+
+    public void ResetSnake()
+    {
+        // Reset the head's position
+        transform.position = Vector3.zero;
+
+        // Ensure the head is in the list
+        if (!snakeSegments.Contains(transform))
+            snakeSegments.Add(transform);
+
+        // Remove and destroy all segments except the head
+        for (int i = snakeSegments.Count - 1; i > 0; i--)
+        {
+            Transform segment = snakeSegments[i];
+            snakeSegments.RemoveAt(i);
+            Destroy(segment.gameObject);
+        }
+
+        // Clear and repopulate positionHistory
+        positionHistory.Clear();
+        positionHistory.Add(transform.position); // Add the head's position
+
+        Debug.Log("Resetting Snake!");
+    }
+
 
     private void HandleMovement()
     {
@@ -33,25 +62,19 @@ public class SnakeController : MonoBehaviour
         {
             moveTimer -= moveInterval;
 
-            // Update the current direction
             currentDirection = nextDirection;
-
-            // Calculate the new position for the head
             Vector3 newPosition = transform.position + (Vector3)(currentDirection * gridSize);
-
-            // Add the new position to the history
             positionHistory.Insert(0, newPosition);
-
-            // Move the head
             transform.position = newPosition;
 
-            // Move each segment to the position of the segment in front of it
             for (int i = 1; i < snakeSegments.Count; i++)
             {
-                snakeSegments[i].position = positionHistory[i];
+                if (i < positionHistory.Count)
+                {
+                    snakeSegments[i].position = positionHistory[i];
+                }
             }
 
-            // Trim the history to match the number of segments
             positionHistory.RemoveAt(positionHistory.Count - 1);
         }
     }
@@ -79,6 +102,7 @@ public class SnakeController : MonoBehaviour
 
         // Instantiate a new segment and add it to the list
         GameObject newSegment = Instantiate(snakeBodyPrefab, newSegmentPosition, Quaternion.identity);
+        if (snakeSegments.Count > 1) newSegment.tag = "Snake Body";
         snakeSegments.Add(newSegment.transform);
 
         // Add the new position to the history (to maintain proper spacing)

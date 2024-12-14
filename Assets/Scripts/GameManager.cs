@@ -31,6 +31,7 @@ public class GameManager : Singleton<GameManager>
                 break;
             case GameState.Game:
                 UIManager.Instance.ShowGameUI();
+                GameEvents.GameStart();
                 Time.timeScale = 1; // Resume the game
                 break;
             case GameState.GameOver:

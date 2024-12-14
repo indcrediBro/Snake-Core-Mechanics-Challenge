@@ -56,8 +56,6 @@ public class LeaderboardManager : MonoBehaviour
 
     private void OnLeaderboardLoaded(Entry[] entries)
     {
-        if (SceneManager.GetActiveScene().buildIndex == 0) return;
-
         foreach (Transform _childTF in m_leaderboardContentTF)
         {
             m_currentEntries = new List<LeaderboardEntry>();

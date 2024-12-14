@@ -11,6 +11,6 @@ public class LeaderboardEntry : MonoBehaviour
     {
         m_entryNumberText.text = _number.ToString();
         m_usernameText.text = _name;
-        m_scoreText.text = "";
+        m_scoreText.text = _score.ToString();
     }
 }
