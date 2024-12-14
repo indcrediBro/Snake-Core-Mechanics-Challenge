@@ -1,63 +1,30 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class UIManager : MonoBehaviour
+public class UIManager : Singleton<UIManager>
 {
-    public static UIManager Instance;
+    [SerializeField] private GameObject mainMenuUI;
+    [SerializeField] private GameObject gameUI;
+    [SerializeField] private GameObject gameOverUI;
 
-    private Dictionary<string, UIPanel> uiPanels = new Dictionary<string, UIPanel>();
-    private UIPanel activePanel;
-
-    // Initialize the UI Manager and cache the panels
-    private void Awake()
+    public void ShowMainMenu()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            FindUIPanels();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        mainMenuUI.SetActive(true);
+        gameUI.SetActive(false);
+        gameOverUI.SetActive(false);
     }
 
-    // Find all UIPanel components in the scene
-    private void FindUIPanels()
+    public void ShowGameUI()
     {
-        UIPanel[] panels = FindObjectsOfType<UIPanel>();
-        foreach (UIPanel panel in panels)
-        {
-            if (!uiPanels.ContainsKey(panel.panelID))
-            {
-                uiPanels.Add(panel.panelID, panel);
-                panel.ClosePanel();  // Start with all panels closed
-            }
-        }
+        mainMenuUI.SetActive(false);
+        gameUI.SetActive(true);
+        gameOverUI.SetActive(false);
     }
 
-    // Method to open a specific panel
-    public void OpenPanel(string panelID)
+    public void ShowGameOver()
     {
-        if (uiPanels.TryGetValue(panelID, out UIPanel panel))
-        {
-            if (activePanel != null)
-            {
-                activePanel.ClosePanel();
-            }
-            panel.OpenPanel();
-            activePanel = panel;
-        }
-    }
-
-    // Method to close the currently active panel
-    public void CloseActivePanel()
-    {
-        if (activePanel != null)
-        {
-            activePanel.ClosePanel();
-            activePanel = null;
-        }
+        mainMenuUI.SetActive(false);
+        gameUI.SetActive(false);
+        gameOverUI.SetActive(true);
     }
 }
