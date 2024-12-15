@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,9 @@ public class SnakeController : MonoBehaviour
     private List<Vector3> positionHistory = new List<Vector3>();
 
     private float moveTimer;
+    private bool isSpeedBoosted = false;
+    private bool isSlowMotionActive = false;
+    private bool areControlsReversed = false;
 
     private void OnEnable()
     {
@@ -31,14 +35,11 @@ public class SnakeController : MonoBehaviour
 
     public void ResetSnake()
     {
-        // Reset the head's position
         transform.position = Vector3.zero;
 
-        // Ensure the head is in the list
         if (!snakeSegments.Contains(transform))
             snakeSegments.Add(transform);
 
-        // Remove and destroy all segments except the head
         for (int i = snakeSegments.Count - 1; i > 0; i--)
         {
             Transform segment = snakeSegments[i];
@@ -46,13 +47,10 @@ public class SnakeController : MonoBehaviour
             Destroy(segment.gameObject);
         }
 
-        // Clear and repopulate positionHistory
         positionHistory.Clear();
-        positionHistory.Add(transform.position); // Add the head's position
-
+        positionHistory.Add(transform.position);
         Debug.Log("Resetting Snake!");
     }
-
 
     private void HandleMovement()
     {
@@ -81,6 +79,11 @@ public class SnakeController : MonoBehaviour
 
     public void SetInputDirection(Vector2 newDirection)
     {
+        if (areControlsReversed)
+        {
+            newDirection = -newDirection; // Reverse the controls
+        }
+
         if (IsValidDirectionChange(newDirection))
         {
             nextDirection = newDirection;
@@ -89,23 +92,19 @@ public class SnakeController : MonoBehaviour
 
     private bool IsValidDirectionChange(Vector2 newDirection)
     {
-        // Allow only cardinal directions and disallow reversing direction
         return (newDirection == Vector2.up || newDirection == Vector2.down || newDirection == Vector2.left || newDirection == Vector2.right) &&
                (currentDirection + newDirection != Vector2.zero);
     }
 
     public void Grow()
     {
-        // Get the last segment's position
         Transform lastSegment = snakeSegments[snakeSegments.Count - 1];
         Vector3 newSegmentPosition = lastSegment.position;
 
-        // Instantiate a new segment and add it to the list
         GameObject newSegment = Instantiate(snakeBodyPrefab, newSegmentPosition, Quaternion.identity);
-        if (snakeSegments.Count > 1) newSegment.tag = "Snake Body";
+        if (snakeSegments.Count > 2) newSegment.tag = "Snake Body";
         snakeSegments.Add(newSegment.transform);
 
-        // Add the new position to the history (to maintain proper spacing)
         positionHistory.Add(newSegmentPosition);
     }
 
@@ -115,5 +114,63 @@ public class SnakeController : MonoBehaviour
         {
             GameEvents.GameOver();
         }
+        else
+        {
+            HandleFoodEaten(collision.gameObject);
+        }
+    }
+
+    private void HandleFoodEaten(GameObject food)
+    {
+        if (food.CompareTag("Food"))
+        {
+            Grow();
+        }
+        else if (food.CompareTag("PowerUp"))
+        {
+            ActivatePowerUp(food.GetComponent<PowerUp>().type);
+            Grow();
+        }
+    }
+
+    private void ActivatePowerUp(PowerUpType type)
+    {
+        switch (type)
+        {
+            case PowerUpType.SpeedBoost:
+                StartCoroutine(SpeedBoost());
+                break;
+            case PowerUpType.SlowMotion:
+                StartCoroutine(SlowMotion());
+                break;
+            case PowerUpType.ReverseControls:
+                StartCoroutine(ReverseControls());
+                break;
+        }
+    }
+
+    private IEnumerator SpeedBoost()
+    {
+        isSpeedBoosted = true;
+        moveInterval /= 2;
+        yield return new WaitForSeconds(5);
+        moveInterval *= 2;
+        isSpeedBoosted = false;
+    }
+
+    private IEnumerator SlowMotion()
+    {
+        isSlowMotionActive = true;
+        Time.timeScale = 0.5f;
+        yield return new WaitForSecondsRealtime(3);
+        Time.timeScale = 1.0f;
+        isSlowMotionActive = false;
+    }
+
+    private IEnumerator ReverseControls()
+    {
+        areControlsReversed = true;
+        yield return new WaitForSeconds(5);
+        areControlsReversed = false;
     }
 }

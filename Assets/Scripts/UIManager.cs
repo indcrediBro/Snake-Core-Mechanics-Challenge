@@ -11,13 +11,11 @@ public class UIManager : Singleton<UIManager>
 
     private void OnEnable()
     {
-        GameEvents.OnFoodEaten += UpdateScore;
         GameEvents.OnGameStart += UpdateScore;
     }
 
     private void OnDisable()
     {
-        GameEvents.OnFoodEaten -= UpdateScore;
         GameEvents.OnGameStart -= UpdateScore;
     }
 
@@ -52,17 +50,26 @@ public class UIManager : Singleton<UIManager>
     {
         foreach (TMP_Text scoreText in scoresUI)
         {
+            if (scoreText == null)
+            {
+                Debug.LogError("scoresUI contains a null reference!");
+                continue;
+            }
+
             scoreText.text = ScoreManager.Instance.Score.ToString();
         }
     }
+
 
     private void UpdateBestScoresUI()
     {
         int highscore = PlayerPrefs.GetInt("HighScore", 0);
         int currentScore = ScoreManager.Instance.Score;
+
         if (currentScore > highscore)
         {
-            PlayerPrefs.SetInt("HighScore", currentScore);
+            highscore = currentScore; // Update local highscore
+            PlayerPrefs.SetInt("HighScore", highscore);
         }
 
         foreach (TMP_Text scoreText in bestScoresUI)
@@ -70,4 +77,5 @@ public class UIManager : Singleton<UIManager>
             scoreText.text = highscore.ToString();
         }
     }
+
 }

@@ -19,6 +19,7 @@ public class ScoreManager : Singleton<ScoreManager>
     private void IncreaseScore()
     {
         Score++;
+        UIManager.Instance.UpdateScore();
     }
 
     private void ResetScore()
