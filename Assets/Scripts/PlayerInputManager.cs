@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class InputHandler : MonoBehaviour
+public class PlayerInputManager : MonoBehaviour
 {
     [SerializeField] private SnakeController snakeController;
     private PlayerControls controls;
@@ -27,6 +27,11 @@ public class InputHandler : MonoBehaviour
     {
         Vector2 inputVector = context.ReadValue<Vector2>();
 
+        ProcessInput(inputVector);
+    }
+
+    private void ProcessInput(Vector2 inputVector)
+    {
         // Snap input to the nearest cardinal direction
         if (Mathf.Abs(inputVector.x) > Mathf.Abs(inputVector.y))
         {
@@ -41,5 +46,10 @@ public class InputHandler : MonoBehaviour
 
         // Forward the snapped direction to the SnakeMovement script
         snakeController.SetInputDirection(inputVector.normalized);
+    }
+
+    public void OnVirtualButtonPressed(Vector2 direction)
+    {
+        ProcessInput(direction);
     }
 }

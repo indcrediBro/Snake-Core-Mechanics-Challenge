@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 1712aeaedef604f078016c06c37eda40
+guid: f1539448a3bae41bc9e1e3fe06298104
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -98,7 +98,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -110,55 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Arcade Buttons Down
+      name: Pixel Arrows_0
       rect:
         serializedVersion: 2
-        x: 169
-        y: 43
-        width: 34
-        height: 15
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 8f25e099e116842b29d548c1675e0ed8
-      internalID: 1986990298
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Arcade Buttons Up
-      rect:
-        serializedVersion: 2
-        x: 230
-        y: 43
-        width: 34
-        height: 19
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 45b4f8d2e873345d689f8854316c03ce
-      internalID: -246647833
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Arcade Buttons (1)_0
-      rect:
-        serializedVersion: 2
-        x: 106
-        y: 44
-        width: 34
-        height: 15
+        x: 0
+        y: 31
+        width: 31
+        height: 31
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -166,8 +124,71 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 26d9d4ff1d7f54a53ba01884614e3bb5
-      internalID: -2055145954
+      spriteID: 132772b20cf97432db934f32074d7941
+      internalID: 1511057572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pixel Arrows_1
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 31
+        width: 31
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4cf3e7cd86b19477ea132b6c36cde96e
+      internalID: -1452786375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pixel Arrows_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 31
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 96b48079561c745cf9aa36c7e9c0d1ea
+      internalID: 1810612925
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pixel Arrows_3
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 0
+        width: 31
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 67fd639e826954c3b9a71e9c6287fe6f
+      internalID: -467122393
       vertices: []
       indices: 
       edges: []
@@ -183,10 +204,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Arcade Buttons (1)_0: -2055145954
-      Arcade Buttons (1)_1: 747241837
-      Arcade Buttons Down: 1986990298
-      Arcade Buttons Up: -246647833
+      Pixel Arrows_0: 1511057572
+      Pixel Arrows_1: -1452786375
+      Pixel Arrows_2: 1810612925
+      Pixel Arrows_3: -467122393
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
