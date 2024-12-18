@@ -11,6 +11,8 @@ public class FoodManager : MonoBehaviour
 
     private List<GameObject> spawnedObstacles = new List<GameObject>();
     private GameObject currentTarget;
+    private SnakeController snake;
+    private const float minimumDistanceFromSnake = 5f; // Minimum distance to maintain from the snake
 
     private void OnEnable()
     {
@@ -24,6 +26,11 @@ public class FoodManager : MonoBehaviour
         GameEvents.OnFoodEaten -= SpawnFoodAndObstacle;
     }
 
+    private void Start()
+    {
+        snake = FindObjectOfType<SnakeController>();
+    }
+
     private void ResetSpawns()
     {
         if (spawnedObstacles.Count > 0)
@@ -32,7 +39,7 @@ public class FoodManager : MonoBehaviour
             {
                 Destroy(item);
             }
-            spawnedObstacles = new List<GameObject>();
+            spawnedObstacles.Clear();
         }
 
         if (currentTarget)
@@ -49,7 +56,6 @@ public class FoodManager : MonoBehaviour
 
     private void SpawnFoodAndObstacle()
     {
-
         if (Random.value < 0.2f) // 20% chance to spawn a power-up
         {
             GameObject powerUp = powerUpPrefabs[Random.Range(0, powerUpPrefabs.Length)];
@@ -65,11 +71,24 @@ public class FoodManager : MonoBehaviour
 
     private GameObject SpawnItem(GameObject prefab, string tag)
     {
-        Vector3 spawnPosition = new Vector3(
-            Random.Range(spawnAreaMin.x, spawnAreaMax.x),
-            Random.Range(spawnAreaMin.y, spawnAreaMax.y),
-            0
-        );
+        Vector3 spawnPosition;
+        int maxAttempts = 100; // Limit to avoid potential infinite loops
+        int attempts = 0;
+
+        do
+        {
+            spawnPosition = new Vector3(
+                Random.Range(spawnAreaMin.x, spawnAreaMax.x),
+                Random.Range(spawnAreaMin.y, spawnAreaMax.y),
+                0
+            );
+            attempts++;
+        } while (attempts < maxAttempts && Vector3.Distance(spawnPosition, snake.transform.position) < minimumDistanceFromSnake);
+
+        if (attempts >= maxAttempts)
+        {
+            Debug.LogWarning("Failed to find a valid spawn position far enough from the snake.");
+        }
 
         GameObject item = Instantiate(prefab, spawnPosition, Quaternion.identity);
         item.tag = tag;

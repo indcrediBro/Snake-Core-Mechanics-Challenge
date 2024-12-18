@@ -16,11 +16,13 @@ public class PowerUp : MonoBehaviour
     [SerializeField] private Sprite[] allSprites;
     [SerializeField] private float animationRate;
 
+    private ScreenFlash flasher;
     private float timer;
     private int index = 0;
 
     private void Start()
     {
+        flasher = FindObjectOfType<ScreenFlash>();
         type = (PowerUpType)Random.Range(0, 3);
     }
 
@@ -46,12 +48,16 @@ public class PowerUp : MonoBehaviour
         }
     }
 
+
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Snake"))
         {
+            flasher.TriggerFlash();
             GameEvents.FoodEaten();
-            collision.GetComponent<SnakeController>().Grow();
+            SnakeController snake = collision.GetComponent<SnakeController>();
+            snake.ActivatePowerUp(type);
             Destroy(gameObject);
         }
     }

@@ -14,10 +14,12 @@ public class MusicManager : Singleton<MusicManager>
     private void OnEnable()
     {
         GameEvents.OnGameStart += PlayNextInGameTrack;
+        GameEvents.OnGameOver += StopAllMusic;
     }
     private void OnDisable()
     {
         GameEvents.OnGameStart -= PlayNextInGameTrack;
+        GameEvents.OnGameOver -= StopAllMusic;
     }
 
     private void Start()
@@ -74,6 +76,18 @@ public class MusicManager : Singleton<MusicManager>
         else
         {
             Debug.LogWarning("Invalid track index");
+        }
+    }
+
+    private void StopAllMusic()
+    {
+        if (inGameSource.isPlaying)
+        {
+            inGameSource.Stop();
+        }
+        if (mainMenuSource.isPlaying)
+        {
+            mainMenuSource.Stop();
         }
     }
 

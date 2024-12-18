@@ -7,7 +7,6 @@ public class Food : MonoBehaviour
         if (collision.CompareTag("Snake"))
         {
             GameEvents.FoodEaten();
-            collision.GetComponent<SnakeController>().Grow();
             Destroy(gameObject);
         }
     }

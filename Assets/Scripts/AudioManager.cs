@@ -4,255 +4,121 @@ using UnityEngine.Audio;
 using System.Collections;
 
 [System.Serializable]
-public class AudioFX
+public class AudioSFX
 {
     public string name;
     public AudioClip audioClip;
     [Range(0, 1)] public float volume = 0.8f;
     public bool randomizePitch;
     public Vector2 randomizePitchValues = new(0.8f, 1.3f);
+    public bool playOnAwake;
     public bool loop;
 }
 
 public class AudioManager : Singleton<AudioManager>
 {
     [Header("Mixer Settings")]
-    [SerializeField] private AudioMixer m_mixer;
-    [SerializeField] private AudioMixerGroup m_musicMixer, m_sfxMixer;
+    [SerializeField]
+    private AudioMixer m_mixer;
 
-    [Header("Music Settings")]
-    [SerializeField] private List<AudioFX> m_musicList;
+    [SerializeField] private AudioMixerGroup m_sfxMixer;
 
-    [Header("SFX Settings")]
-    [SerializeField] private List<AudioFX> m_sfxList;
-    [SerializeField] private int m_sfxPoolSize = 10;
-    [SerializeField] private bool m_willGrowSFXPool = true;
+    [Header("Audio SFX Settings")]
+    [SerializeField]
+    private List<AudioSFX> m_audioSFXList;
 
-    private GameObject m_musicSourceObject;  // Central object for managing music
-    private AudioSource m_currentMusicSource;
-
-    private List<GameObject> sfxPool = new List<GameObject>();  // Pre-pooled SFX objects
+    private static List<GameObject> m_audioSourceObjects;
 
     protected override void Awake()
     {
         base.Awake();
-        InitializeMusicSource();
-        InitializeSFXPool();
+        InitializeAudioSources();
     }
 
-    #region Music Management
-
-    private void InitializeMusicSource()
+    private void InitializeAudioSources()
     {
-        if (m_musicSourceObject == null)
+        if (m_audioSFXList.Count > 0)
         {
-            m_musicSourceObject = new GameObject("MusicSource", typeof(AudioSource));
-            m_musicSourceObject.transform.SetParent(transform);
-            m_currentMusicSource = m_musicSourceObject.GetComponent<AudioSource>();
-            m_currentMusicSource.outputAudioMixerGroup = m_musicMixer;
-        }
-    }
+            m_audioSourceObjects = new List<GameObject>();
 
-    public void PlayMusic(string musicName, bool fade = false, float fadeDuration = 1.0f)
-    {
-        AudioFX music = GetAudioByName(musicName, m_musicList);
-        if (music != null)
-        {
-            if (fade && m_currentMusicSource.isPlaying)
+            foreach (AudioSFX sfx in m_audioSFXList)
             {
-                StartCoroutine(FadeOutMusic(m_currentMusicSource, fadeDuration, () => StartNewMusic(music)));
-            }
-            else
-            {
-                StartNewMusic(music);
-            }
-        }
-    }
+                GameObject sfxObject = new GameObject(sfx.name, typeof(AudioSource));
+                sfxObject.transform.SetParent(transform);
 
-    private void StartNewMusic(AudioFX music)
-    {
-        m_currentMusicSource.clip = music.audioClip;
-        m_currentMusicSource.volume = music.volume;
-        m_currentMusicSource.loop = music.loop;
-        m_currentMusicSource.Play();
-    }
-
-    public void StopMusic(bool fade = false, float fadeDuration = 1.0f)
-    {
-        if (fade)
-        {
-            StartCoroutine(FadeOutMusic(m_currentMusicSource, fadeDuration));
-        }
-        else
-        {
-            m_currentMusicSource.Stop();
-        }
-    }
-
-    private IEnumerator FadeOutMusic(AudioSource source, float duration, System.Action onComplete = null)
-    {
-        float startVolume = source.volume;
-        float time = 0;
-
-        while (time < duration)
-        {
-            time += Time.deltaTime;
-            source.volume = Mathf.Lerp(startVolume, 0, time / duration);
-            yield return null;
-        }
-
-        source.Stop();
-        source.volume = startVolume;
-        onComplete?.Invoke();
-    }
-
-    #endregion
-
-    #region SFX Management
-
-    private void InitializeSFXPool()
-    {
-        foreach (var sfx in m_sfxList)
-        {
-            for (int i = 0; i < m_sfxPoolSize; i++)
-            {
-                CreatePooledSFX(sfx);
-            }
-        }
-    }
-
-    private void CreatePooledSFX(AudioFX sfx)
-    {
-        GameObject sfxObject = new GameObject(sfx.name + "_SFX", typeof(AudioSource));
-        sfxObject.transform.SetParent(transform);
-
-        AudioSource audioSource = sfxObject.GetComponent<AudioSource>();
-        audioSource.clip = sfx.audioClip;
-        audioSource.volume = sfx.volume;
-        audioSource.loop = sfx.loop;
-        audioSource.outputAudioMixerGroup = m_sfxMixer;
-        audioSource.playOnAwake = false;
-
-        sfxObject.SetActive(false);
-        sfxPool.Add(sfxObject);
-    }
-
-    public void PlaySFX(string sfxName, Vector3 position, bool fadeIn = false, float fadeDuration = 1.0f)
-    {
-        GameObject sfxObject = GetPooledSFX(sfxName);
-        if (sfxObject != null)
-        {
-            sfxObject.SetActive(true);
-            AudioSource sfxSource = sfxObject.GetComponent<AudioSource>();
-            sfxSource.transform.position = position;
-            sfxSource.spatialBlend = 1f;
-
-            if (fadeIn)
-            {
-                sfxSource.volume = 0;
-                StartCoroutine(FadeInSFX(sfxSource, sfxSource.volume, fadeDuration));
-            }
-
-            sfxSource.Play();
-            StartCoroutine(ReturnSFXToPoolAfterPlay(sfxSource));
-        }
-        else
-        {
-            Debug.LogWarning("No available SFX source in the pool!");
-        }
-    }
-
-    public void StopSFX(string sfxName, bool fadeOut = false, float fadeDuration = 1.0f)
-    {
-        foreach (var sfxObject in sfxPool)
-        {
-            if (sfxObject.name == sfxName + "_SFX" && sfxObject.activeInHierarchy)
-            {
-                AudioSource sfxSource = sfxObject.GetComponent<AudioSource>();
-                if (fadeOut)
+                AudioSource newAudioSource = sfxObject.GetComponent<AudioSource>();
+                newAudioSource.volume = sfx.volume;
+                newAudioSource.clip = sfx.audioClip;
+                if (sfx.playOnAwake)
                 {
-                    StartCoroutine(FadeOutSFX(sfxSource, fadeDuration));
+                    newAudioSource.playOnAwake = sfx.playOnAwake;
+                    newAudioSource.Play();
                 }
-                else
-                {
-                    sfxSource.Stop();
-                    sfxObject.SetActive(false);
-                }
-                break;
+                newAudioSource.loop = sfx.loop;
+                newAudioSource.outputAudioMixerGroup = m_sfxMixer;
+                m_audioSourceObjects.Add(sfxObject);
             }
         }
     }
 
-    private GameObject GetPooledSFX(string sfxName)
+    public AudioSource GetAudioSource(string _name)
     {
-        foreach (var sfxObject in sfxPool)
+        foreach (GameObject obj in m_audioSourceObjects)
         {
-            if (!sfxObject.activeInHierarchy && sfxObject.name.Contains(sfxName))
-            {
-                return sfxObject;
-            }
-        }
-
-        // If pool is set to grow, create new SFX object
-        if (m_willGrowSFXPool)
-        {
-            AudioFX sfx = GetAudioByName(sfxName, m_sfxList);
-            if (sfx != null)
-            {
-                CreatePooledSFX(sfx);
-                return GetPooledSFX(sfxName);
-            }
-        }
-
-        return null;
-    }
-
-    private IEnumerator ReturnSFXToPoolAfterPlay(AudioSource source)
-    {
-        yield return new WaitWhile(() => source.isPlaying);
-        source.gameObject.SetActive(false);
-    }
-
-    private IEnumerator FadeInSFX(AudioSource source, float targetVolume, float duration)
-    {
-        float time = 0;
-        while (time < duration)
-        {
-            time += Time.deltaTime;
-            source.volume = Mathf.Lerp(0, targetVolume, time / duration);
-            yield return null;
-        }
-    }
-
-    private IEnumerator FadeOutSFX(AudioSource source, float duration)
-    {
-        float startVolume = source.volume;
-        float time = 0;
-
-        while (time < duration)
-        {
-            time += Time.deltaTime;
-            source.volume = Mathf.Lerp(startVolume, 0, time / duration);
-            yield return null;
-        }
-
-        source.Stop();
-        source.gameObject.SetActive(false);
-    }
-
-    #endregion
-
-    #region Utility Methods
-
-    private AudioFX GetAudioByName(string name, List<AudioFX> audioList)
-    {
-        foreach (AudioFX audio in audioList)
-        {
-            if (audio.name == name)
-                return audio;
+            if (obj.name == _name)
+                return obj.GetComponent<AudioSource>();
         }
         return null;
     }
 
-    #endregion
+    private AudioSFX GetAudioSFXByName(string _name)
+    {
+        foreach (AudioSFX sfx in m_audioSFXList)
+        {
+            if (sfx.name == _name)
+                return sfx;
+        }
+        return null;
+    }
+
+    public void PlaySound(string _name)
+    {
+        AudioSFX sfxStats = GetAudioSFXByName(_name);
+        AudioSource source = GetAudioSource(_name);
+        if (source)
+        {
+            if (sfxStats.randomizePitch)
+            {
+                source.pitch = RandomNumber.Instance.NextFloat(sfxStats.randomizePitchValues.x, sfxStats.randomizePitchValues.y);
+            }
+            source.Play();
+        }
+    }
+
+    public void PlaySound(string _name, Vector3 _positon)
+    {
+        AudioSFX sfxStats = GetAudioSFXByName(_name);
+        AudioSource source = GetAudioSource(_name);
+
+        if (source)
+        {
+            if (sfxStats.randomizePitch)
+            {
+                source.pitch = RandomNumber.Instance.NextFloat(sfxStats.randomizePitchValues.x, sfxStats.randomizePitchValues.y);
+            }
+            source.transform.position = _positon;
+            source.spatialBlend = 1f;
+            source.Play();
+        }
+    }
+
+    public void StopSound(string _name)
+    {
+        AudioSource source = GetAudioSource(_name);
+
+        if (source && source.isPlaying)
+        {
+            source.Stop();
+        }
+    }
 }

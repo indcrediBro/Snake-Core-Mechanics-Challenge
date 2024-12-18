@@ -14,18 +14,20 @@ public class SnakeController : MonoBehaviour
     private List<Vector3> positionHistory = new List<Vector3>();
 
     private float moveTimer;
-    private bool isSpeedBoosted = false;
-    private bool isSlowMotionActive = false;
-    private bool areControlsReversed = false;
+    [SerializeField] private bool isSpeedBoosted = false;
+    [SerializeField] private bool isSlowMotionActive = false;
+    [SerializeField] private bool areControlsReversed = false;
 
     private void OnEnable()
     {
         GameEvents.OnGameStart += ResetSnake;
+        GameEvents.OnFoodEaten += Grow;
     }
 
     private void OnDisable()
     {
         GameEvents.OnGameStart -= ResetSnake;
+        GameEvents.OnFoodEaten -= Grow;
     }
 
     private void Update()
@@ -36,6 +38,11 @@ public class SnakeController : MonoBehaviour
     public void ResetSnake()
     {
         transform.position = Vector3.zero;
+
+        StopAllCoroutines();
+        isSpeedBoosted = false;
+        isSlowMotionActive = false;
+        areControlsReversed = false;
 
         if (!snakeSegments.Contains(transform))
             snakeSegments.Add(transform);
@@ -114,10 +121,6 @@ public class SnakeController : MonoBehaviour
         {
             GameEvents.GameOver();
         }
-        else
-        {
-            HandleFoodEaten(collision.gameObject);
-        }
     }
 
     private void HandleFoodEaten(GameObject food)
@@ -128,13 +131,14 @@ public class SnakeController : MonoBehaviour
         }
         else if (food.CompareTag("PowerUp"))
         {
-            ActivatePowerUp(food.GetComponent<PowerUp>().type);
+            //ActivatePowerUp(food.GetComponent<PowerUp>().type);
             Grow();
         }
     }
 
-    private void ActivatePowerUp(PowerUpType type)
+    public void ActivatePowerUp(PowerUpType type)
     {
+        Debug.Log(type);
         switch (type)
         {
             case PowerUpType.SpeedBoost:

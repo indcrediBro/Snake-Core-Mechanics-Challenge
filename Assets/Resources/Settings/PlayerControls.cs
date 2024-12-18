@@ -182,6 +182,78 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 }
             ]
+        },
+        {
+            ""name"": ""Game UI"",
+            ""id"": ""608117b4-cdca-476e-afe4-a2b828469c2e"",
+            ""actions"": [
+                {
+                    ""name"": ""Select"",
+                    ""type"": ""Button"",
+                    ""id"": ""7d311c7b-985c-4783-a1c7-9aa41237d2f7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""98f6ebbc-0176-4adc-8897-5e6561f22668"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e24aac95-b4df-46e3-9343-869358bbe016"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0bfa9e11-6592-4714-8753-87c5b51816ce"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4c1c6bfe-477e-480e-902b-8f5c5a69232d"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2a8bafb2-3447-4edd-9200-a8501d9d2d24"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -189,11 +261,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         // Gameplay
         m_Gameplay = asset.FindActionMap("Gameplay", throwIfNotFound: true);
         m_Gameplay_Move = m_Gameplay.FindAction("Move", throwIfNotFound: true);
+        // Game UI
+        m_GameUI = asset.FindActionMap("Game UI", throwIfNotFound: true);
+        m_GameUI_Select = m_GameUI.FindAction("Select", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
     {
         UnityEngine.Debug.Assert(!m_Gameplay.enabled, "This will cause a leak and performance issues, PlayerControls.Gameplay.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_GameUI.enabled, "This will cause a leak and performance issues, PlayerControls.GameUI.Disable() has not been called.");
     }
 
     public void Dispose()
@@ -297,8 +373,58 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         }
     }
     public GameplayActions @Gameplay => new GameplayActions(this);
+
+    // Game UI
+    private readonly InputActionMap m_GameUI;
+    private List<IGameUIActions> m_GameUIActionsCallbackInterfaces = new List<IGameUIActions>();
+    private readonly InputAction m_GameUI_Select;
+    public struct GameUIActions
+    {
+        private @PlayerControls m_Wrapper;
+        public GameUIActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Select => m_Wrapper.m_GameUI_Select;
+        public InputActionMap Get() { return m_Wrapper.m_GameUI; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(GameUIActions set) { return set.Get(); }
+        public void AddCallbacks(IGameUIActions instance)
+        {
+            if (instance == null || m_Wrapper.m_GameUIActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_GameUIActionsCallbackInterfaces.Add(instance);
+            @Select.started += instance.OnSelect;
+            @Select.performed += instance.OnSelect;
+            @Select.canceled += instance.OnSelect;
+        }
+
+        private void UnregisterCallbacks(IGameUIActions instance)
+        {
+            @Select.started -= instance.OnSelect;
+            @Select.performed -= instance.OnSelect;
+            @Select.canceled -= instance.OnSelect;
+        }
+
+        public void RemoveCallbacks(IGameUIActions instance)
+        {
+            if (m_Wrapper.m_GameUIActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IGameUIActions instance)
+        {
+            foreach (var item in m_Wrapper.m_GameUIActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_GameUIActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public GameUIActions @GameUI => new GameUIActions(this);
     public interface IGameplayActions
     {
         void OnMove(InputAction.CallbackContext context);
+    }
+    public interface IGameUIActions
+    {
+        void OnSelect(InputAction.CallbackContext context);
     }
 }

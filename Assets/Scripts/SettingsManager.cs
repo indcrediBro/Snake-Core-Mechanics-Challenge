@@ -4,60 +4,143 @@ using UnityEngine.UI;
 
 public class SettingsManager : Singleton<SettingsManager>
 {
-    // Audio
-    public AudioMixer audioMixer;
-    [SerializeField] private Slider musicSlider;
-    [SerializeField] private Slider sfxSlider;
+    [Header("Audio Settings")]
+    public AudioMixer audioMixer;            // Reference to the AudioMixer
+    public string musicVolumeParameter = "MusicVolume";
+    public string sfxVolumeParameter = "SFXVolume";
+
+    private float musicVolume;
+    private float sfxVolume;
+
+    [Header("UI Settings")]
+    public Slider musicVolumeSlider;
+    public Slider sfxVolumeSlider;
+
+    public Sprite switchIcon, switchIconFlipped;
+    public Image cameraShakeImageRenderer, screenFlashImageRenderer;
+    public bool cameraShakeEnabled, screenFlashEnabled;
 
     private void Start()
     {
-        // Initialize settings
+        InitializeUI();
         LoadSettings();
     }
 
-    #region Audio Settings
-
-    public void SetMusicVolume(float volume)
+    private void InitializeUI()
     {
-        audioMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20);
-        SaveVolumeSettings();
+        // Initialize sliders with current settings
+        musicVolumeSlider.value = GetMusicVolume();
+        sfxVolumeSlider.value = GetSFXVolume();
+        cameraShakeEnabled = GetCameraShakeActiveness() != 0;
+        screenFlashEnabled = GetScreenFlashActiveness() != 0;
+
+        // Add listeners to sliders
+        musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
+        sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
+
+        if (cameraShakeEnabled)
+        {
+            cameraShakeImageRenderer.sprite = switchIcon;
+        }
+        else
+        {
+            cameraShakeImageRenderer.sprite = switchIconFlipped;
+        }
+
+        if (screenFlashEnabled)
+        {
+            screenFlashImageRenderer.sprite = switchIcon;
+        }
+        else
+        {
+            screenFlashImageRenderer.sprite = switchIconFlipped;
+        }
     }
 
-    public void SetSFXVolume(float volume)
+    private void OnMusicVolumeChanged(float value)
     {
-        audioMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20);
-        SaveVolumeSettings();
+        SetMusicVolume(value);
+        ApplySettings();
     }
 
-    private void SaveVolumeSettings()
+    private void OnSFXVolumeChanged(float value)
     {
-        PlayerPrefs.SetFloat("MusicVolume", musicSlider.value);
-        PlayerPrefs.SetFloat("SFXVolume", sfxSlider.value);
-        PlayerPrefs.Save();
+        SetSFXVolume(value);
+        ApplySettings();
     }
 
-    private void LoadVolumeSettings()
+    private void SetMusicVolume(float value)
     {
-        float musicVolume = PlayerPrefs.GetFloat("MusicVolume", 0.5f);
-        float sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 0.5f);
-
-        musicSlider.value = musicVolume;
-        musicSlider.minValue = 0.0001f;
-        sfxSlider.value = sfxVolume;
-        sfxSlider.minValue = 0.0001f;
-
-        SetMusicVolume(musicVolume);
-        SetSFXVolume(sfxVolume);
+        musicVolume = Mathf.Log10(value) * 20;
+        audioMixer.SetFloat(musicVolumeParameter, musicVolume);
+        PlayerPrefs.SetFloat("MusicVolume", value);
     }
 
-    #endregion
+    private float GetMusicVolume()
+    {
+        return PlayerPrefs.GetFloat("MusicVolume", 0.5f);
+    }
 
-    #region Load and Save Settings
+    private void SetSFXVolume(float value)
+    {
+        sfxVolume = Mathf.Log10(value) * 20;
+        audioMixer.SetFloat(sfxVolumeParameter, sfxVolume);
+        PlayerPrefs.SetFloat("SFXVolume", value);
+    }
+
+    private float GetSFXVolume()
+    {
+        return PlayerPrefs.GetFloat("SFXVolume", 0.5f);
+    }
+
+    public int GetCameraShakeActiveness()
+    {
+        return PlayerPrefs.GetInt("CameraShake", 1);
+    }
+    public int GetScreenFlashActiveness()
+    {
+        return PlayerPrefs.GetInt("ScreenFlash", 1);
+    }
+    public void SetCameraShakeActiveness()
+    {
+        if (cameraShakeEnabled)
+        {
+            PlayerPrefs.SetInt("CameraShake", 0);
+            cameraShakeEnabled = false;
+            cameraShakeImageRenderer.sprite = switchIconFlipped;
+        }
+        else
+        {
+            PlayerPrefs.SetInt("CameraShake", 1);
+            cameraShakeEnabled = true;
+            cameraShakeImageRenderer.sprite = switchIcon;
+        }
+    }
+    public void SetScreenFlashActiveness()
+    {
+        if (screenFlashEnabled)
+        {
+            PlayerPrefs.SetInt("ScreenFlash", 0);
+            screenFlashEnabled = false;
+            screenFlashImageRenderer.sprite = switchIconFlipped;
+        }
+        else
+        {
+            PlayerPrefs.SetInt("ScreenFlash", 1);
+            screenFlashEnabled = true;
+            screenFlashImageRenderer.sprite = switchIcon;
+        }
+    }
 
     private void LoadSettings()
     {
-        LoadVolumeSettings();
+        SetMusicVolume(PlayerPrefs.GetFloat("MusicVolume", 0.5f));
+        SetSFXVolume(PlayerPrefs.GetFloat("SFXVolume", 0.5f));
     }
 
-    #endregion
+    private void ApplySettings()
+    {
+        audioMixer.SetFloat(musicVolumeParameter, Mathf.Log10(GetMusicVolume()) * 20);
+        audioMixer.SetFloat(sfxVolumeParameter, Mathf.Log10(GetSFXVolume()) * 20);
+    }
 }

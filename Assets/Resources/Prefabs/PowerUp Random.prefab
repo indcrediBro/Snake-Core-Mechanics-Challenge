@@ -11,10 +11,12 @@ GameObject:
   - component: {fileID: 1034290248031747836}
   - component: {fileID: 548899732947287606}
   - component: {fileID: 5038862554081400404}
+  - component: {fileID: 5248579978848402352}
   - component: {fileID: 4019495747829286487}
+  - component: {fileID: 3966066844402266241}
   m_Layer: 0
   m_Name: PowerUp Random
-  m_TagString: Untagged
+  m_TagString: PowerUp
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -131,6 +133,33 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!50 &5248579978848402352
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3085033940432614575}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
 --- !u!114 &4019495747829286487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -149,3 +178,22 @@ MonoBehaviour:
   - {fileID: 1408029091, guid: ca5c381d98c9345dd85188bacb6447d7, type: 3}
   - {fileID: 1195690248, guid: ca5c381d98c9345dd85188bacb6447d7, type: 3}
   animationRate: 0.5
+--- !u!114 &3966066844402266241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3085033940432614575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 763bad365c9864202bcc3da9bf5978b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rigidbody: {fileID: 5248579978848402352}
+  spawnAreaMin: {x: -34, y: -20}
+  spawnAreaMax: {x: 34, y: 20}
+  min: {x: -4, y: -4}
+  max: {x: 4, y: 4}
+  moveSpeed: 5
+  moveInterval: 0.25
