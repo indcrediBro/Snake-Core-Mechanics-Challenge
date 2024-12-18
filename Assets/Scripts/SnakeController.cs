@@ -161,7 +161,7 @@ public class SnakeController : MonoBehaviour
         AudioManager.Instance.PlaySound("PowerUp");
         isSpeedBoosted = true;
         moveInterval /= 2;
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(8);
         moveInterval *= 2;
         isSpeedBoosted = false;
         AudioManager.Instance.PlaySound("PowerDown");
@@ -172,7 +172,7 @@ public class SnakeController : MonoBehaviour
         AudioManager.Instance.PlaySound("PowerUp");
         isSlowMotionActive = true;
         Time.timeScale = 0.5f;
-        yield return new WaitForSecondsRealtime(3);
+        yield return new WaitForSecondsRealtime(5);
         Time.timeScale = 1.0f;
         isSlowMotionActive = false;
         AudioManager.Instance.PlaySound("PowerDown");
