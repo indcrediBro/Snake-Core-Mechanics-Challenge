@@ -4,24 +4,26 @@ using UnityEngine;
 
 public class SnakeController : MonoBehaviour
 {
-    [SerializeField] private float moveInterval = 0.2f; // Time between each movement step
-    [SerializeField] private float gridSize = 1f; // Size of each movement step (grid size)
+    [SerializeField] private float moveInterval = 0.2f;
+    [SerializeField] private float gridSize = 1f;
     [SerializeField] private GameObject snakeBodyPrefab;
 
-    private Vector2 currentDirection = Vector2.right; // Initial movement direction
+    private Vector2 currentDirection = Vector2.zero;
     private Vector2 nextDirection = Vector2.right;
     private List<Transform> snakeSegments = new List<Transform>();
     private List<Vector3> positionHistory = new List<Vector3>();
 
+    private float originalSpeed;
     private float moveTimer;
-    [SerializeField] private bool isSpeedBoosted = false;
-    [SerializeField] private bool isSlowMotionActive = false;
-    [SerializeField] private bool areControlsReversed = false;
+    private bool isSpeedBoosted = false;
+    private bool isSlowMotionActive = false;
+    private bool areControlsReversed = false;
 
     private void OnEnable()
     {
         GameEvents.OnGameStart += ResetSnake;
         GameEvents.OnFoodEaten += Grow;
+        originalSpeed = moveInterval;
     }
 
     private void OnDisable()
@@ -38,11 +40,12 @@ public class SnakeController : MonoBehaviour
     public void ResetSnake()
     {
         transform.position = Vector3.zero;
-
+        currentDirection = Vector2.zero;
         StopAllCoroutines();
         isSpeedBoosted = false;
         isSlowMotionActive = false;
         areControlsReversed = false;
+        moveInterval = originalSpeed;
 
         if (!snakeSegments.Contains(transform))
             snakeSegments.Add(transform);
@@ -155,26 +158,32 @@ public class SnakeController : MonoBehaviour
 
     private IEnumerator SpeedBoost()
     {
+        AudioManager.Instance.PlaySound("PowerUp");
         isSpeedBoosted = true;
         moveInterval /= 2;
         yield return new WaitForSeconds(5);
         moveInterval *= 2;
         isSpeedBoosted = false;
+        AudioManager.Instance.PlaySound("PowerDown");
     }
 
     private IEnumerator SlowMotion()
     {
+        AudioManager.Instance.PlaySound("PowerUp");
         isSlowMotionActive = true;
         Time.timeScale = 0.5f;
         yield return new WaitForSecondsRealtime(3);
         Time.timeScale = 1.0f;
         isSlowMotionActive = false;
+        AudioManager.Instance.PlaySound("PowerDown");
     }
 
     private IEnumerator ReverseControls()
     {
+        AudioManager.Instance.PlaySound("PowerUp");
         areControlsReversed = true;
         yield return new WaitForSeconds(5);
         areControlsReversed = false;
+        AudioManager.Instance.PlaySound("PowerDown");
     }
 }

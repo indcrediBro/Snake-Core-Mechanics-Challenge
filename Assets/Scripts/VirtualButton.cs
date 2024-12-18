@@ -15,5 +15,6 @@ public class VirtualButton : MonoBehaviour
         {
             MusicManager.Instance.PlayNextInGameTrack();
         }
+        AudioManager.Instance.PlaySound("MouseOver");
     }
 }

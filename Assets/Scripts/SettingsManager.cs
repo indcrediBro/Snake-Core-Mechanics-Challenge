@@ -86,6 +86,7 @@ public class SettingsManager : Singleton<SettingsManager>
         sfxVolume = Mathf.Log10(value) * 20;
         audioMixer.SetFloat(sfxVolumeParameter, sfxVolume);
         PlayerPrefs.SetFloat("SFXVolume", value);
+        AudioManager.Instance.PlaySound("MouseOver");
     }
 
     private float GetSFXVolume()
@@ -115,6 +116,7 @@ public class SettingsManager : Singleton<SettingsManager>
             cameraShakeEnabled = true;
             cameraShakeImageRenderer.sprite = switchIcon;
         }
+        AudioManager.Instance.PlaySound("MouseOver");
     }
     public void SetScreenFlashActiveness()
     {
@@ -130,6 +132,7 @@ public class SettingsManager : Singleton<SettingsManager>
             screenFlashEnabled = true;
             screenFlashImageRenderer.sprite = switchIcon;
         }
+        AudioManager.Instance.PlaySound("MouseOver");
     }
 
     private void LoadSettings()

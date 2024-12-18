@@ -35,6 +35,19 @@ public class AudioManager : Singleton<AudioManager>
         InitializeAudioSources();
     }
 
+    private void OnEnable()
+    {
+        GameEvents.OnFoodEaten += PlayFoodEatenSound;
+        GameEvents.OnGameOver += PlayExplosionSound;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnFoodEaten -= PlayFoodEatenSound;
+        GameEvents.OnGameOver -= PlayExplosionSound;
+
+    }
+
     private void InitializeAudioSources()
     {
         if (m_audioSFXList.Count > 0)
@@ -120,5 +133,15 @@ public class AudioManager : Singleton<AudioManager>
         {
             source.Stop();
         }
+    }
+
+    private void PlayFoodEatenSound()
+    {
+        PlaySound("FoodEaten");
+    }
+
+    private void PlayExplosionSound()
+    {
+        PlaySound("Explosion");
     }
 }
